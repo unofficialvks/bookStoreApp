@@ -1,15 +1,44 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import toast from 'react-hot-Toast';
+
 
 const Login = () => {
+
+  const location = useLocation();
+  const navigate=useNavigate()
+  const from = location.state?.from?.pathname || "/";
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm()
 
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = async (data) => {
+    const userInfo={
+      email:data.email,
+      password:data.password,
+    }
+   await axios
+   .post("http://localhost:4001/user/login",userInfo)
+    .then((res)=>{
+      console.log(res.data)
+      if(res.data){
+        // alert("login successfull")
+        toast.success('Login successfull!');
+        navigate(from ,{ replace: true });
+        window.location.reload();
+    }
+      localStorage.setItem("Users", JSON.stringify(res.data.user));
+  }).catch((err)=>{
+      if(err.response){
+      console.log(err);
+      toast.error("Error: "+ err.response.data.message);}
+    });
+  }
 
   return (
     <div>
@@ -54,14 +83,41 @@ const Login = () => {
 
 const Signup = () => {
   const [showLogin, setShowLogin] = useState(false); // Modal control
-
+  //use for redirection
+  const location = useLocation();
+  const navigate=useNavigate()
+  const from = location.state?.from?.pathname || "/";
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => console.log(data);
+  const onSubmit = async(data) => {
+    const userInfo={
+      fullname: data.fullname,
+      email:data.email,
+      password:data.password,
+    }
+   await axios
+   .post("http://localhost:4001/user/signup",userInfo)
+    .then((res)=>{
+      console.log(res.data)
+      if(res.data){
+        // alert("signup successfull")
+        toast.success('Signup successfull!');
+        navigate(from ,{ replace: true });
+      }
+      localStorage.setItem("Users", JSON.stringify(res.data.user));
+  }).catch((err)=>{
+      if(err.response){
+      console.log(err);
+      toast.error("Error: "+ err.response.data.message);}
+    });
+  }
+
+
+ // const onSubmit = (data) => console.log(data);
 
   const openLoginModal = () => {
     setShowLogin(true); // Open the login modal
@@ -90,9 +146,9 @@ const Signup = () => {
                 type="text"
                 placeholder='Enter your Full Name'
                 className='w-80 px-3 py-1 border rounded-md outline-none'
-                {...register('name', { required: true })}
+                {...register('fullname', { required: true })}
               />
-              {errors.name && <span className="text-sm text-red-500">Name is required</span>}
+              {errors.fullname && <span className="text-sm text-red-500">Name is required</span>}
             </div>
 
             {/* Email */}
