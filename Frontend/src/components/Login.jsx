@@ -45,7 +45,7 @@ const Login = () => {
 
      const closeModal = () => {
         const modal = document.getElementById('my_modal_3')
-        modal.close() // Close the dialog
+        modal.close() // Close the dialoge
       }
 
   return (
